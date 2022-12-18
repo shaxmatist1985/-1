@@ -1,0 +1,139 @@
+#Викторина
+#Игра на выбор правильного варианта ответа
+#вопросы которой читаются из текстового файла
+import pickle, shelve
+import sys
+def conservation(name, definition,champions):
+    #Законсервируем рекордсменов
+    champions[name]= definition
+    #champions = {'Ильшат':'0'}
+    f=open('pickles1.dat', 'wb')
+    pickle.dump(champions, f)
+    f.close
+def unconservation(champions):
+    #Разконсервация рекордсменов
+    print('Рекордсмен(ы): ')
+    f = open('pickles1.dat', 'rb')
+    champions = pickle.load(f)
+    print(champions)
+    f.close
+
+
+
+
+def open_file(file_name, mode):
+    '''Открывает файл.'''
+    try:
+        the_file = open(file_name, mode, encoding='utf-8')
+    except IOError as e:
+        print('Невозможно открыть файл', file_name, 'Работа программы будет завершена \n', e)
+        input('\n\nНажмите Enter, чтобы выйти')
+        sys.exit()
+    else:
+        return the_file
+
+def next_line(the_file):
+    '''Возвращает в отфарматированном виде очередную строку игрового файла'''
+    line = the_file.readline()
+    line = line.replace('/', '\n')
+    return line
+
+def next_block(the_file):
+    'Возвращает очередной блок данных из игрового файла'
+    category = next_line(the_file)
+    question = next_line(the_file)
+    answers = []
+    for i in range(4):
+        answers.append(next_line(the_file))
+    correct=next_line(the_file)
+    if correct:
+        correct = correct[0]
+    explanation = next_line(the_file)
+    return category, question, answers, correct, explanation
+
+def welcome(title):
+    '''Приветствует игрока и сообщает тему игры'''
+    print('\t\tДобро пожаловать в игру "Викторина" \n')
+    print('\t\t', title, '\n')
+
+def main():
+    trivia_file = open_file('trivia.txt', 'r')
+    title = next_line(trivia_file)
+    welcome(title)
+    score = 0
+
+    #извлечение первого блока
+    category, question, answers, correct, explanation = next_block(trivia_file)
+    n = 0
+    while category:
+        # вывод вопроса на экран
+        print(category)
+        print(question)
+        for i in range(4):
+            print('\t', i + 1, '-', answers[i])
+
+    # получение ответа
+        answer = input('Ваш ответ:')
+#проверка ответа
+        n +=1
+        if answer == correct:
+            print('\nДа!', end=' ')
+            score +=4
+        elif answer != correct:
+
+            if n==1 :
+                if answer ==2:
+                    score +=2
+                elif answer ==3:
+                    score += 3
+                elif answer ==4:
+                    score +=1
+            elif n==2:
+                if answer ==1:
+                    score +=1
+                elif answer ==3:
+                    score += 3
+                elif answer ==4:
+                    score +=2
+            elif n==3:
+                if answer ==1:
+                    score +=2
+                elif answer ==2:
+                    score += 3
+                elif answer ==4:
+                    score +=1
+            elif n==4:
+                if answer ==1:
+                    score +=1
+                elif answer ==2:
+                    score += 3
+                elif answer ==3:
+                    score +=2
+            elif n==5:
+                if answer ==2:
+                    score +=2
+                elif answer ==3:
+                    score += 1
+                elif answer ==4:
+                    score +=3
+            print('\nНет.', end=' ')
+
+
+        print(explanation)
+        print('Счет:', score, '\n\n')
+
+#переход к следующему вопросу
+        category, question, answers, correct, explanation = next_block(trivia_file)
+
+    trivia_file.close()
+    print('Это был последний вопрос!')
+    print('На вашем счету', score)
+    name=input('Введите ваше имя: ')
+    champions={}
+
+    conservation(name, score,champions)
+    unconservation(champions)
+
+
+main()
+input('\n\nНажмите Enter, чтобы выйти.')
